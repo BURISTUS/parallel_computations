@@ -22,10 +22,11 @@ where
     Ok(input.par_iter().map(compute_fn).collect())
 }
 
-fn main() {
+fn main() -> Result<(), GeneralErrors> {
     let input = vec![1, 2, 3, 4, 5];
-    let output = parallel_computations(input, |x| x * x + 25);
+    let output = parallel_computations(input, |x| x * x + 25)?;
     println!("{:?}", output);
+    Ok(())
 }
 
 #[cfg(test)]
