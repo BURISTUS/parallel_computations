@@ -4,9 +4,9 @@ use std::thread::{self, JoinHandle};
 
 const TRESHOLD: usize = 5;
 
-fn parallel_computations<T, R, F>(input: Vec<T>, compute_fn: F) -> Result<Vec<R>, GeneralErrors>
+fn parallel_computations<T, R, F>(mut input: Vec<T>, compute_fn: F) -> Result<Vec<R>, GeneralErrors>
 where
-    T: Send + Sync + 'static + Clone,
+    T: Send + 'static + Sync,
     R: Send + 'static + Clone,
     F: Fn(&T) -> R + Send + Sync + 'static,
 {
@@ -20,7 +20,8 @@ where
     }
 
     let mid = input.len() / 2;
-    let (left_input, right_input) = input.split_at(mid);
+    let right_input = input.split_off(mid);
+    let left_input = input;
 
     let left_fn = Arc::new(compute_fn);
     let right_fn = left_fn.clone();
@@ -51,17 +52,16 @@ where
 }
 
 fn handle<T, R, F>(
-    input: &[T],
+    input: Vec<T>,
     mutex: &Arc<Mutex<Vec<R>>>,
     compute_fn: Arc<F>,
 ) -> JoinHandle<Result<(), GeneralErrors>>
 where
-    T: Send + 'static + Clone,
+    T: Send + 'static + Sync,
     R: Send + 'static + Clone,
     F: Fn(&T) -> R + Send + Sync + 'static,
 {
     thread::spawn({
-        let input = input.to_vec();
         let mutex = mutex.clone();
         move || -> Result<(), GeneralErrors> {
             let mut result = Vec::with_capacity(input.len());
