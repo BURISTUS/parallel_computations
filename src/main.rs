@@ -6,7 +6,7 @@ const TRESHOLD: usize = 5;
 
 fn parallel_computations<T, R, F>(mut input: Vec<T>, compute_fn: F) -> Result<Vec<R>, GeneralErrors>
 where
-    T: Send + 'static + Sync,
+    T: Send + 'static,
     R: Send + 'static + Clone,
     F: Fn(&T) -> R + Send + Sync + 'static,
 {
@@ -57,8 +57,8 @@ fn handle<T, R, F>(
     compute_fn: Arc<F>,
 ) -> JoinHandle<Result<(), GeneralErrors>>
 where
-    T: Send + 'static + Sync,
-    R: Send + 'static + Clone,
+    T: Send + 'static,
+    R: Send + 'static,
     F: Fn(&T) -> R + Send + Sync + 'static,
 {
     thread::spawn({
